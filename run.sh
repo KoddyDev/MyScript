@@ -1869,6 +1869,31 @@ database_host_reset(){
     Q2="FLUSH PRIVILEGES;"
     SQL="${Q0}${Q1}${Q2}"
     mysql mysql -e "$SQL"
+
+if grep -Fqs "bind-address" /etc/mysql/mariadb.conf.d/50-server.cnf ; then
+		sed -i -- '/bind-address/s/#//g' /etc/mysql/mariadb.conf.d/50-server.cnf
+ 		sed -i -- '/bind-address/s/127.0.0.1/0.0.0.0/g' /etc/mysql/mariadb.conf.d/50-server.cnf
+		output 'Reiniciando o processo MySQL ...'
+		service mysql restart
+	elif grep -Fqs "bind-address" /etc/mysql/my.cnf ; then
+        	sed -i -- '/bind-address/s/#//g' /etc/mysql/my.cnf
+		sed -i -- '/bind-address/s/127.0.0.1/0.0.0.0/g' /etc/mysql/my.cnf
+		output 'Reiniciando o processo MySQL ...'
+		service mysql restart
+	elif grep -Fqs "bind-address" /etc/my.cnf ; then
+        	sed -i -- '/bind-address/s/#//g' /etc/my.cnf
+		sed -i -- '/bind-address/s/127.0.0.1/0.0.0.0/g' /etc/my.cnf
+		output 'Reiniciando o processo MySQL ...'
+		service mysql restart
+    	elif grep -Fqs "bind-address" /etc/mysql/my.conf.d/mysqld.cnf ; then
+        	sed -i -- '/bind-address/s/#//g' /etc/mysql/my.conf.d/mysqld.cnf
+		sed -i -- '/bind-address/s/127.0.0.1/0.0.0.0/g' /etc/mysql/my.conf.d/mysqld.cnf
+		output 'Reiniciando o processo MySQL ...'
+		service mysql restart
+	else
+		output 'Não foi possível detectar um arquivo de configuração do MySQL! Entre em contato com o suporte.'
+	fi
+
     output "New database host information:"
     output "Host: $SERVER_IP"
     output "Port: 3306"
